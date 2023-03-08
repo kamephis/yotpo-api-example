@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yotpo Reviews</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <style>
+    .star-rating {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: row-reverse;
+    }
+    .star-rating .star {
+      font-size: 24px;
+      color: #ccc;
+      margin-right: 4px;
+    }
+    .star-rating .star.active {
+      color: #f5a623;
+    }
+    .date {
+      font-size: 14px;
+      font-style: italic;
+    }
+  </style>
+</head>
+  
+<body class="p-8">
+  <div class="max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Yotpo Reviews</h1>
+    <div id="reviews" class="space-y-4"></div>
+  </div>
+  
+  <script>
+    // Yotpo API credentials
+    const APP_KEY = 'ABCDEFGHIJKLMNOPQRST';
+    const AUTH_TOKEN = 'ABCDEFGHIJKLMNOPQRST';
+
+    fetch('https://api.yotpo.com/v1/apps/${APP_KEY}/reviews?utoken=${AUTH_TOKEN}')
+      .then(response => response.json())
+      .then(data => {
+        const reviewsContainer = document.getElementById('reviews');
+        data.reviews.forEach(review => {
+          const stars = Math.round(parseFloat(review.score));
+        
+
+          const starHtml = `
+            <div class="star-rating">
+              ${'<i class="far fa-star star"></i>'.repeat(stars)}
+              ${'<i class="fas fa-star star active"></i>'.repeat(5 - stars)}
+            </div>
+          `;
+
+          const date          = new Date(review.created_at);
+          const options       = { day: '2-digit', month: '2-digit', year: 'numeric'};
+          const formattedDate = new Intl.DateTimeFormat('de-DE', options).format(date);
+          const emailHash     = CryptoJS.MD5(review.email).toString();
+          const gravatarUrl   = `https://www.gravatar.com/avatar/${emailHash}?s=64&d=monsterid`;
+
+          const reviewHtml = `
+            <div class="bg-white shadow p-4 rounded flex">
+              <div class="flex-none mr-4">
+                <img id="avatar-${review.id}" class="w-16 h-16 rounded-full" src="" alt="User avatar">
+              </div>
+              <div class="flex-1">
+                <h2 class="text-lg font-bold">${review.title}</h2>
+                <p class="text-gray-500">${review.content}</p>
+                <div class="flex justify-between items-center mt-4">
+                  <div class="flex items-center">
+                    <span>${starHtml}</span>
+                    <p class="text-gray-600 ml-2">${review.name}</p>
+                  </div>
+                  <p class="text-gray-600 date">${formattedDate}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          reviewsContainer.innerHTML += reviewHtml;
+          document.getElementById(`avatar-${review.id}`).src = gravatarUrl;
+        });
+      });
+  </script>
+</body>
+</html>
