@@ -40,7 +40,7 @@
     const APP_KEY = 'ABCDEFGHIJKLMNOPQRST';
     const AUTH_TOKEN = 'ABCDEFGHIJKLMNOPQRST';
 
-    fetch('https://api.yotpo.com/v1/apps/${APP_KEY}/reviews?utoken=${AUTH_TOKEN}')
+    fetch(`https://api.yotpo.com/v1/apps/${APP_KEY}/reviews?utoken=${AUTH_TOKEN}`)
       .then(response => response.json())
       .then(data => {
         const reviewsContainer = document.getElementById('reviews');
